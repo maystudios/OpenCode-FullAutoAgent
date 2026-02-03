@@ -1,3 +1,14 @@
+<!-- FULL-AUTO-START -->
+## Full-Auto State Definition
+This section is managed by the Full-Auto plugin.
+
+- **States:** pick_next, plan, implement, review, done
+- **State File:** .opencode/full-auto/state.json
+- **Rules:**
+  1. Each state completes by updating the state file.
+  2. The next state is determined by the current progress and AGENTS.md instructions.
+<!-- FULL-AUTO-END -->
+
 # AGENTS.md
 
 ## Build & Test Commands
