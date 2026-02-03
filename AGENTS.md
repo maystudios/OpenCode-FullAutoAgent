@@ -63,3 +63,18 @@
 - **Type**: ES Module package for OpenCode plugin system
 - **Target**: Bun runtime, ES2021+
 - **Purpose**: Background task execution and lifecycle management
+
+## Project Concept & Source of Truth
+
+- The authoritative project concept is defined in: `docs/concept.md`
+- This document is the **single source of truth** for architecture, goals, and intended behavior
+- When implementing features or making design decisions:
+  - Always align with the concept document
+  - If implementation diverges, the concept must be updated explicitly
+- The concept document takes precedence over assumptions or legacy behavior
+
+All agents must consult `docs/concept.md` before introducing new functionality or changing system behavior.
+
+### Documentation Path Convention
+- Canonical docs directory is `docs/` (lowercase).
+- Do not read/write `Docs/` if `docs/` exists.

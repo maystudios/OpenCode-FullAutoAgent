@@ -1,12 +1,37 @@
+# Node.js
 node_modules/
 dist/
 *.log
-.DS_Store
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
 .env
 .env.local
-coverage/
-.nyc_output/
-.eslintcache
+
+# Bun
 .bun/
 .bun.lockb
+bun.lockb
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+.vitest/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OpenCode & Plugin specific
+.opencode/
 .memory/
+
+# Full-Auto Plugin Local Artifacts
+# (If initialized within the plugin repo for testing)
+.opencode/full-auto/

@@ -1,22 +1,11 @@
-/**
- * OpenCode Plugin Template
- *
- * This is an example plugin that demonstrates the plugin capabilities:
- * - Custom tools (tools callable by the LLM)
- * - Custom slash commands (user-invokable /commands loaded from .md files)
- * - Config hooks (modify config at runtime)
- *
- * Replace this with your own plugin implementation.
- */
-
 import type { Plugin } from '@opencode-ai/plugin';
-import { tool } from '@opencode-ai/plugin';
-import path from 'path';
-
-// ============================================================
-// COMMAND LOADER
-// Loads .md files from src/command/ directory as slash commands
-// ============================================================
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { fullAutoTool } from './tools/full-auto.ts';
+import { executeInit } from './commands/init.ts';
+import { executeStart } from './commands/start.ts';
+import { executeStop } from './commands/stop.ts';
+import { executeRunOnce } from './commands/run-once.ts';
 
 interface CommandFrontmatter {
   description?: string;
@@ -25,21 +14,6 @@ interface CommandFrontmatter {
   subtask?: boolean;
 }
 
-interface ParsedCommand {
-  name: string;
-  frontmatter: CommandFrontmatter;
-  template: string;
-}
-
-/**
- * Parse YAML frontmatter from a markdown file
- * Format:
- * ---
- * description: Command description
- * agent: optional-agent
- * ---
- * Template content here
- */
 function parseFrontmatter(content: string): { frontmatter: CommandFrontmatter; body: string } {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
   const match = content.match(frontmatterRegex);
@@ -51,7 +25,6 @@ function parseFrontmatter(content: string): { frontmatter: CommandFrontmatter; b
   const [, yamlContent, body] = match;
   const frontmatter: CommandFrontmatter = {};
 
-  // Simple YAML parsing for key: value pairs
   for (const line of yamlContent.split('\n')) {
     const colonIndex = line.indexOf(':');
     if (colonIndex === -1) continue;
@@ -68,77 +41,67 @@ function parseFrontmatter(content: string): { frontmatter: CommandFrontmatter; b
   return { frontmatter, body: body.trim() };
 }
 
-/**
- * Load all command .md files from the command directory
- */
-async function loadCommands(): Promise<ParsedCommand[]> {
-  const commands: ParsedCommand[] = [];
-  const commandDir = path.join(import.meta.dir, 'command');
-  const glob = new Bun.Glob('**/*.md');
-
-  for await (const file of glob.scan({ cwd: commandDir, absolute: true })) {
-    const content = await Bun.file(file).text();
-    const { frontmatter, body } = parseFrontmatter(content);
-
-    // Extract command name from filename (e.g., "hello.md" -> "hello")
-    const relativePath = path.relative(commandDir, file);
-    const name = relativePath.replace(/\.md$/, '').replace(/\//g, '-');
-
-    commands.push({
-      name,
-      frontmatter,
-      template: body,
-    });
-  }
-
-  return commands;
-}
-
-export const ExamplePlugin: Plugin = async () => {
-  // ============================================================
-  // LOAD COMMANDS FROM .MD FILES
-  // Commands are loaded at plugin initialization time
-  // ============================================================
-  const commands = await loadCommands();
-
-  // ============================================================
-  // EXAMPLE TOOL
-  // Tools are callable by the LLM during conversations
-  // ============================================================
-  const exampleTool = tool({
-    description: 'An example tool that echoes back the input message',
-    args: {
-      message: tool.schema.string().describe('The message to echo'),
-    },
-    async execute(args) {
-      return `Echo: ${args.message}`;
-    },
-  });
+export const FullAutoPlugin: Plugin = async () => {
+  const commandFile = new URL('./commands/full-auto.md', import.meta.url);
+  const content = await readFile(fileURLToPath(commandFile), 'utf-8');
+  const { frontmatter, body } = parseFrontmatter(content);
 
   return {
-    // Register custom tools
     tool: {
-      example_tool: exampleTool,
+      full_auto: fullAutoTool,
     },
-
-    // ============================================================
-    // CONFIG HOOK
-    // Modify config at runtime - use this to inject custom commands
-    // ============================================================
     async config(config) {
-      // Initialize the command record if it doesn't exist
       config.command = config.command ?? {};
+      const commandRegistry = config.command as Record<
+        string,
+        {
+          template?: string;
+          description?: string;
+          agent?: string;
+          model?: string;
+          subtask?: boolean;
+          execute?: () => Promise<string>;
+        }
+      >;
 
-      // Register all loaded commands
-      for (const cmd of commands) {
-        config.command[cmd.name] = {
-          template: cmd.template,
-          description: cmd.frontmatter.description,
-          agent: cmd.frontmatter.agent,
-          model: cmd.frontmatter.model,
-          subtask: cmd.frontmatter.subtask,
-        };
-      }
+      // Register main orchestrator command
+      commandRegistry['full-auto'] = {
+        template: body,
+        description: frontmatter.description,
+        agent: frontmatter.agent,
+        model: frontmatter.model,
+        subtask: frontmatter.subtask,
+      };
+
+      // Register explicit CLI commands
+      const initCommand = {
+        description: 'Initialize Full-Auto project structure',
+        execute: executeInit,
+      };
+
+      const startCommand = {
+        description: 'Start the Full-Auto orchestration loop',
+        execute: executeStart,
+      };
+
+      const stopCommand = {
+        description: 'Stop the running Full-Auto loop',
+        execute: executeStop,
+      };
+
+      const runOnceCommand = {
+        description: 'Execute a single Full-Auto state cycle',
+        execute: executeRunOnce,
+      };
+
+      commandRegistry['full-auto-init'] = initCommand;
+      commandRegistry['full-auto-start'] = startCommand;
+      commandRegistry['full-auto-stop'] = stopCommand;
+      commandRegistry['full-auto-run-once'] = runOnceCommand;
+      commandRegistry['full-auto init'] = initCommand;
+      commandRegistry['full-auto start'] = startCommand;
+      commandRegistry['full-auto stop'] = stopCommand;
+      commandRegistry['full-auto run-once'] = runOnceCommand;
     },
   };
 };
