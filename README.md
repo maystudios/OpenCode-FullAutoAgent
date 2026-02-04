@@ -5,7 +5,7 @@ Automates a simple, repeatable CLI workflow inside OpenCode. The plugin initiali
 ## What It Does
 
 - Initializes a `.opencode/full-auto` workspace with commands, CLI sequences, and state.
-- Runs a fixed workflow loop: `pick_next → plan → implement → review → done`.
+- Runs a fixed workflow loop: `pick_next → plan → implement → review → done` with a reserved `stop` state.
 - Executes CLI sequences for each state and then runs a lightweight `update_state_status` step.
 - Stores the current state in `.opencode/full-auto/state.json`.
 - Inserts a managed header block at the top of `AGENTS.md` to define the state rules.
@@ -32,6 +32,7 @@ The plugin registers two styles of commands (both work):
     implement.md
     review.md
     done.md
+    stop.md
     update_state_status.md
 
   cli/
@@ -40,6 +41,7 @@ The plugin registers two styles of commands (both work):
     implement.json
     review.json
     done.json
+    stop.json
     update_state_status.json
 ```
 
@@ -70,21 +72,131 @@ Example `cli/plan.json`:
 - [OpenCode CLI](https://opencode.ai) installed and configured
 - Node.js 18+ or Bun runtime
 
-### Option 1: Install from npm (recommended)
+---
 
-```bash
-npm install -g fullautoagent
+<details open>
+<summary><b>For Humans</b></summary>
+
+**Option A: Let an LLM do it**
+
+Paste this into any LLM agent (Claude Code, OpenCode, Cursor, etc.):
+
+```
+Install the fullautoagent plugin for OpenCode and initialize Full-Auto in my project by following: https://raw.githubusercontent.com/maystudios/OpenCode-FullAutoAgent/main/README.md
 ```
 
-Or with your preferred package manager:
+**Option B: Manual setup**
+
+1. **Add the plugin** to `~/.config/opencode/opencode.json`:
+
+   ```json
+   {
+     "plugin": ["fullautoagent@latest"]
+   }
+   ```
+
+2. **Install locally** in your project:
+
+   ```bash
+   npm install fullautoagent --save
+   ```
+
+3. **Initialize** inside OpenCode:
+
+   ```bash
+   opencode
+   ```
+
+   Then run:
+
+   ```
+   /full-auto init
+   ```
+
+4. **Start the workflow:**
+
+   ```
+   /full-auto start
+   ```
+
+</details>
+
+<details>
+<summary><b>For LLM Agents</b></summary>
+
+### Step-by-Step Instructions
+
+1. Edit the OpenCode configuration file at `~/.config/opencode/opencode.json`
+
+   > **Note**: This path works on all platforms. On Windows, `~` resolves to your user home directory (e.g., `C:\Users\YourName`).
+
+2. Add the plugin to the `plugin` array:
+
+   ```json
+   {
+     "plugin": ["fullautoagent@latest"]
+   }
+   ```
+
+3. Install the plugin locally in the project:
+
+   ```bash
+   npm install fullautoagent --save
+   ```
+
+4. Start OpenCode and run `/full-auto init` to create the workflow structure.
+
+5. Run `/full-auto start` to begin the automation loop.
+
+### Verification
 
 ```bash
-pnpm add -g fullautoagent
-yarn global add fullautoagent
-bun add -g fullautoagent
+opencode
 ```
 
-### Option 2: Install from source
+Then inside OpenCode:
+
+```
+/full-auto init
+/full-auto start
+```
+
+### Important
+
+- OpenCode does **not** load globally installed npm packages as plugins.
+- The plugin must be listed in `opencode.json` under `"plugin"` (singular, not `"plugins"`).
+- The plugin must be installed locally (`npm install fullautoagent --save`), not just globally.
+
+</details>
+
+---
+
+### Why OpenCode might not show the plugin
+
+Installing `fullautoagent` globally (`npm install -g`) only installs an npm package. OpenCode loads plugins only from:
+
+- `.opencode/plugins/` directory
+- `opencode.json` config under `"plugin"` array (as local dependencies)
+
+If OpenCode doesn't list the plugin:
+
+1. Add to `~/.config/opencode/opencode.json`:
+
+   ```json
+   {
+     "plugin": ["fullautoagent@latest"]
+   }
+   ```
+
+2. Install locally:
+
+   ```bash
+   npm install fullautoagent --save
+   ```
+
+---
+
+### Install from source
 
 ```bash
 git clone https://github.com/maystudios/OpenCode-FullAutoAgent.git
@@ -94,15 +206,15 @@ npm run build
 npm link
 ```
 
-### Enable the Plugin in OpenCode
-
-Create or edit your OpenCode config file at `~/.config/opencode/config.json`:
+Then add to your OpenCode config:
 
 ```json
 {
-  "plugins": ["fullautoagent"]
+  "plugin": ["fullautoagent"]
 }
 ```
+
+---
 
 ### Initialize in Your Project
 
