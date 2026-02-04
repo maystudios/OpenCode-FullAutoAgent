@@ -1,6 +1,6 @@
 {
   "name": "fullautoagent",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A configurable OpenCode plugin that turns task checklists into a fully automated workflow. It initializes a project-local orchestration system with editable prompts, state management, and per-step CLI command sequences. The plugin runs an event-driven state machine (pick → plan → implement → review → done), executes steps autonomously, writes structured artifacts, and allows users to customize every stage of the pipeline while preserving deterministic, recoverable automation.",
   "author": {
     "name": "Sven Maibaum",
