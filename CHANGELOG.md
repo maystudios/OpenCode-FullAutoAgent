@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/maystudios/OpenCode-FullAutoAgent/compare/v1.0.0...v1.1.0) (2026-02-04)
+
+
+### Features
+
+* add Full-Auto State Definition section to AGENTS.md ([ce28a49](https://github.com/maystudios/OpenCode-FullAutoAgent/commit/ce28a49b0f519e419d41b7cc2acfeaaf2beaab65))
+* Introduce Full-Auto workflow orchestrator with state management, command templates, and associated types. ([5d0b1a8](https://github.com/maystudios/OpenCode-FullAutoAgent/commit/5d0b1a8a98bd698780aaf3f372339c5900d0a942))
+
 ## 1.0.0 (2026-02-03)
 
 
