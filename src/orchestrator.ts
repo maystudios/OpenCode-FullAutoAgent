@@ -65,6 +65,12 @@ class Orchestrator {
     const status: WorkflowStatus = currentState.status;
     process.stdout.write(`State: ${status}\n`);
 
+    if (status === 'stop') {
+      this.stopRequested = true;
+      process.stdout.write('Full-Auto stop state reached. Halting loop.\n');
+      return;
+    }
+
     await executeSequence(status);
     await executeSequence(UPDATE_STATE_SEQUENCE);
 

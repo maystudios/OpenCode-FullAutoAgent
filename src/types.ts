@@ -1,4 +1,4 @@
-type WorkflowStatus = 'pick_next' | 'plan' | 'implement' | 'review' | 'done';
+type WorkflowStatus = 'pick_next' | 'plan' | 'implement' | 'review' | 'done' | 'stop';
 
 interface WorkflowState {
   status: WorkflowStatus;

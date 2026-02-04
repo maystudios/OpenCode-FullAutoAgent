@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import * as cliExecutor from './cli-executor.ts';
 import { orchestrator } from './orchestrator.ts';
 import * as state from './state.ts';
 
-let executeSequenceSpy: ReturnType<typeof vi.spyOn> | undefined;
-let readStateSpy: ReturnType<typeof vi.spyOn> | undefined;
+let executeSequenceSpy: MockInstance | undefined;
+let readStateSpy: MockInstance | undefined;
 
 afterEach(() => {
   executeSequenceSpy?.mockRestore();
@@ -14,9 +15,7 @@ afterEach(() => {
 
 describe('orchestrator', () => {
   it('runs a single cycle via runOnce', async () => {
-    executeSequenceSpy = vi
-      .spyOn(cliExecutor, 'executeSequence')
-      .mockResolvedValue({ count: 1 });
+    executeSequenceSpy = vi.spyOn(cliExecutor, 'executeSequence').mockResolvedValue({ count: 1 });
     readStateSpy = vi
       .spyOn(state, 'readState')
       .mockResolvedValueOnce({ status: 'pick_next', lastUpdated: 'now' })
@@ -27,6 +26,18 @@ describe('orchestrator', () => {
     expect(result).toBe('Full-Auto run-once completed.');
     expect(executeSequenceSpy).toHaveBeenCalledWith('pick_next');
     expect(executeSequenceSpy).toHaveBeenCalledWith('update_state_status');
+  });
+
+  it('halts when state is stop', async () => {
+    executeSequenceSpy = vi.spyOn(cliExecutor, 'executeSequence').mockResolvedValue({ count: 1 });
+    readStateSpy = vi
+      .spyOn(state, 'readState')
+      .mockResolvedValue({ status: 'stop', lastUpdated: 'now' });
+
+    const result = await orchestrator.runOnce();
+
+    expect(result).toBe('Full-Auto run-once completed.');
+    expect(executeSequenceSpy).not.toHaveBeenCalled();
   });
 
   it('starts and stops the loop', async () => {

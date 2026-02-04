@@ -3,7 +3,14 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { getFullAutoPath, getStatePath } from './constants.ts';
 import type { WorkflowState, WorkflowStatus } from './types.ts';
 
-const VALID_STATUSES: WorkflowStatus[] = ['pick_next', 'plan', 'implement', 'review', 'done'];
+const VALID_STATUSES: WorkflowStatus[] = [
+  'pick_next',
+  'plan',
+  'implement',
+  'review',
+  'done',
+  'stop',
+];
 
 const getDefaultState = (): WorkflowState => {
   return {

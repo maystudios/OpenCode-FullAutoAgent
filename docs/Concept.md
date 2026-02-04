@@ -16,11 +16,11 @@ Der Nutzer kann Commands/Prompts/State-Definitionen anpassen. Das Plugin liefert
 
 Das Plugin ist ein dünner Orchestrator, der:
 
-* CLI-Commands nacheinander ausführt
-* kurze Delays zwischen Commands einfügt
-* OpenCode neu startet / beendet
-* OpenCode-Commands triggert
-* den aktuellen State speichert
+- CLI-Commands nacheinander ausführt
+- kurze Delays zwischen Commands einfügt
+- OpenCode neu startet / beendet
+- OpenCode-Commands triggert
+- den aktuellen State speichert
 
 Das System steuert primär die laufende CLI wie ein Skript. Ein State entspricht einer definierten Command-Sequenz.
 
@@ -41,6 +41,7 @@ Bei `init` wird folgender Ordner erzeugt:
     implement.md
     review.md
     done.md
+    stop.md
     update_state_status.md
 
   cli/
@@ -49,6 +50,7 @@ Bei `init` wird folgender Ordner erzeugt:
     implement.json
     review.json
     done.json
+    stop.json
     update_state_status.json
 ```
 
@@ -85,11 +87,11 @@ Projektweite Agenten-Anweisung (Schema/Regeln), wie der Workflow-State zu interp
 
 Initialisiert die Struktur:
 
-* legt Ordner an
-* erzeugt Default-Commands
-* erstellt Beispiel-Checkliste
-* schreibt Default-State
-* legt `AGENTS.md` an oder erweitert sie (Header-Block am Anfang)
+- legt Ordner an
+- erzeugt Default-Commands
+- erstellt Beispiel-Checkliste
+- schreibt Default-State
+- legt `AGENTS.md` an oder erweitert sie (Header-Block am Anfang)
 
 ---
 
@@ -97,11 +99,11 @@ Initialisiert die Struktur:
 
 Startet die Automation:
 
-* liest `state.json`
-* führt CLI-Sequenz des aktuellen States aus
-* führt danach `update_state_status` aus
-* setzt/übernimmt den nächsten State
-* wiederholt
+- liest `state.json`
+- führt CLI-Sequenz des aktuellen States aus
+- führt danach `update_state_status` aus
+- setzt/übernimmt den nächsten State
+- wiederholt
 
 ---
 
@@ -127,7 +129,15 @@ Standard:
 pick_next → plan → implement → review → done → pick_next
 ```
 
+Zusatz:
+
+```
+stop → (halt)
+```
+
 Die tatsächliche State-Transition wird nicht „hart“ im Plugin kodiert, sondern über `update_state_status` anhand eines Schemas entschieden.
+
+Der State `stop` ist verpflichtend und muss exakt so heißen. Wenn `state.json` auf `stop` steht, beendet der Orchestrator die Loop und führt keine CLI-Sequenzen mehr aus.
 
 ---
 
@@ -135,16 +145,17 @@ Die tatsächliche State-Transition wird nicht „hart“ im Plugin kodiert, sond
 
 Das Plugin verwaltet einen **Header-Block am Anfang** der `AGENTS.md`, der:
 
-* die State-Namen definiert
-* das erwartete State-Schema beschreibt
-* festlegt, wie Status/Artefakte interpretiert werden
-* festlegt, wie der nächste State gewählt wird
+- die State-Namen definiert
+- das erwartete State-Schema beschreibt
+- festlegt, wie Status/Artefakte interpretiert werden
+- festlegt, wie der nächste State gewählt wird
 
 Beispiel-Inhalt (konzeptionell):
 
-* erlaubte States: `pick_next, plan, implement, review, done`
-* wo der aktuelle State steht (z. B. `.opencode/full-auto/state.json`)
-* welche Signale/Artefakte den State-Übergang bestimmen (z. B. `review` entscheidet `implement` vs `done`)
+- erlaubte States: `pick_next, plan, implement, review, done, stop`
+- `stop` ist ein reservierter State-Name und stoppt die Orchestrator-Schleife
+- wo der aktuelle State steht (z. B. `.opencode/full-auto/state.json`)
+- welche Signale/Artefakte den State-Übergang bestimmen (z. B. `review` entscheidet `implement` vs `done`)
 
 ---
 
@@ -157,11 +168,7 @@ Beispiel `cli/plan.json`:
 ```json
 {
   "delay_ms": 800,
-  "commands": [
-    "/exit",
-    "opencode --model gpt-5",
-    "/plan"
-  ]
+  "commands": ["/exit", "opencode --model gpt-5", "/plan"]
 }
 ```
 
@@ -190,25 +197,21 @@ Das Plugin orchestriert nur CLI-Kommandos.
 
 Nach jedem State (oder optional nach jedem einzelnen CLI-Command) wird ein zusätzlicher Command ausgeführt:
 
-* **Command-Name:** `update_state_status`
-* **Zweck:** überprüft, ob der Workflow-State korrekt ist, und aktualisiert `state.json` strikt nach dem Schema in `AGENTS.md`
+- **Command-Name:** `update_state_status`
+- **Zweck:** überprüft, ob der Workflow-State korrekt ist, und aktualisiert `state.json` strikt nach dem Schema in `AGENTS.md`
 
 Dieser Schritt kann bewusst ein **schnelles, günstiges Modell** verwenden (z. B. ein „Flash“-Profil), da er nur:
 
-* State validiert
-* State aktualisiert
-* ggf. minimale Begründung/Log schreibt
+- State validiert
+- State aktualisiert
+- ggf. minimale Begründung/Log schreibt
 
 Beispiel `cli/update_state_status.json`:
 
 ```json
 {
   "delay_ms": 400,
-  "commands": [
-    "/exit",
-    "opencode --model fast-small",
-    "/update_state_status"
-  ]
+  "commands": ["/exit", "opencode --model fast-small", "/update_state_status"]
 }
 ```
 
@@ -220,10 +223,10 @@ Der Orchestrator „hört“ anschließend auf den neuen State aus `state.json` 
 
 Ein simples OpenCode-Plugin, das:
 
-* CLI-Sequenzen automatisiert ausführt
-* OpenCode-Commands orchestriert
-* `AGENTS.md` als verbindliches State-/Schema-Doc pflegt
-* State über einen günstigen `update_state_status`-Zwischenschritt aktualisiert
-* wiederholbare Workflows erlaubt
+- CLI-Sequenzen automatisiert ausführt
+- OpenCode-Commands orchestriert
+- `AGENTS.md` als verbindliches State-/Schema-Doc pflegt
+- State über einen günstigen `update_state_status`-Zwischenschritt aktualisiert
+- wiederholbare Workflows erlaubt
 
 Der Workflow besteht aus Commands, die automatisch nacheinander laufen und sich über den State selbs

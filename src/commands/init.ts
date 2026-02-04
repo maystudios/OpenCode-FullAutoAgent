@@ -16,6 +16,7 @@ import {
   UPDATE_STATE_STATUS_TEMPLATE,
   DEFAULT_SEQUENCES,
   CHECKLIST_TEMPLATE,
+  STOP_TEMPLATE,
 } from '../templates/index.ts';
 import { writeState } from '../state.ts';
 import { injectAgentsHeader } from '../agents-md.ts';
@@ -35,6 +36,7 @@ const executeInit = async (): Promise<string> => {
       implement: IMPLEMENT_TEMPLATE,
       review: REVIEW_TEMPLATE,
       done: DONE_TEMPLATE,
+      stop: STOP_TEMPLATE,
       update_state_status: UPDATE_STATE_STATUS_TEMPLATE,
     };
 

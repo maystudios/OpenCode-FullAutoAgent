@@ -42,10 +42,19 @@ The task is completed. Clean up any temporary files.
 The next step will be picking the next task.
 `;
 
+export const STOP_TEMPLATE = `---
+description: "Workflow Stop: Halt the Full-Auto loop"
+---
+# Stop Workflow
+The workflow is halted. Do not run additional steps.
+To resume, set the state to a non-stop value (e.g. pick_next).
+`;
+
 export const UPDATE_STATE_STATUS_TEMPLATE = `---
 description: "Internal: Update the workflow state in state.json"
 ---
 # Update Workflow State
 Analyze the current progress and update .opencode/full-auto/state.json with the next state.
 Use only valid states and strictly follow the rules defined in AGENTS.md.
+Use the state 'stop' to halt the orchestrator when needed.
 `;

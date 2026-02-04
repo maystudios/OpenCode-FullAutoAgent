@@ -35,6 +35,18 @@ describe('state', () => {
     });
   });
 
+  it('accepts stop as a valid state', async () => {
+    await withTempDir('full-auto-state-', async (dir) => {
+      const now = new Date().toISOString();
+
+      await writeState({ status: 'stop', lastUpdated: now }, dir);
+
+      const state = await readState(dir);
+
+      expect(state.status).toBe('stop');
+    });
+  });
+
   it('falls back to default state when status is invalid', async () => {
     await withTempDir('full-auto-state-', async (dir) => {
       const statePath = resolve(dir, '.opencode/full-auto/state.json');

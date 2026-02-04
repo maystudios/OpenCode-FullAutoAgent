@@ -8,11 +8,12 @@ const DEFAULT_HEADER = `
 ## Full-Auto State Definition
 This section is managed by the Full-Auto plugin.
 
-- **States:** pick_next, plan, implement, review, done
+- **States:** pick_next, plan, implement, review, done, stop
 - **State File:** .opencode/full-auto/state.json
 - **Rules:**
   1. Each state completes by updating the state file.
   2. The next state is determined by the current progress and AGENTS.md instructions.
+  3. The 'stop' state halts the orchestrator until manually changed.
 `;
 
 export const injectAgentsHeader = async (baseDir: string = process.cwd()): Promise<void> => {

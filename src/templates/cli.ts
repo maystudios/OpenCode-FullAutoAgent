@@ -25,6 +25,11 @@ export const DONE_SEQUENCE: CliSequence = {
   commands: ['/exit', 'opencode --model gpt-5', '/done'],
 };
 
+export const STOP_SEQUENCE: CliSequence = {
+  delay_ms: 800,
+  commands: ['/exit'],
+};
+
 export const UPDATE_STATE_STATUS_SEQUENCE: CliSequence = {
   delay_ms: 400,
   commands: ['/exit', 'opencode --model fast-small', '/update_state_status'],
@@ -36,5 +41,6 @@ export const DEFAULT_SEQUENCES: Record<string, CliSequence> = {
   implement: IMPLEMENT_SEQUENCE,
   review: REVIEW_SEQUENCE,
   done: DONE_SEQUENCE,
+  stop: STOP_SEQUENCE,
   update_state_status: UPDATE_STATE_STATUS_SEQUENCE,
 };
