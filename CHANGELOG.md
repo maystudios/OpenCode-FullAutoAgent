@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/maystudios/OpenCode-FullAutoAgent/compare/v1.1.0...v1.2.0) (2026-02-04)
+
+
+### Features
+
+* Introduce `stop` state to the workflow and overhaul installation instructions with agent-specific guidance and plugin configuration correction. ([8216ca9](https://github.com/maystudios/OpenCode-FullAutoAgent/commit/8216ca9b556d43232bb5a12d94bca6b49b1a0763))
+
 ## [1.1.0](https://github.com/maystudios/OpenCode-FullAutoAgent/compare/v1.0.0...v1.1.0) (2026-02-04)
 
 
